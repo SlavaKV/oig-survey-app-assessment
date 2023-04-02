@@ -1,0 +1,58 @@
+﻿@page "/questionnaire/{Id:int?}"
+
+@if (_isAddMode)
+{
+    <h3>Create questionnaire</h3>
+}
+else
+{
+    <h3>Edit questionnaire</h3>
+    }
+
+@if (_isLoading){
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        @if (_isAddMode)
+        {
+            <label>Status after creationn will be 'Concept'</label>
+        }
+        else
+        {
+            <div>
+                <label>Status is <b>@_model.StatusName</b></label>
+            </div>
+            @if(_model.IsUpdatable){
+                if (!string.IsNullOrEmpty(_model.NextStatusName)) // TODO: Change into bool variable
+                {
+                    <button class="btn btn-secondary" @onclick="ChangeStatus">Change Status on @_model.NextStatusName</button>
+                }
+            }
+        }
+    </div>
+    <EditForm Model="@_model" OnValidSubmit="Submit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <div class="form-group row">
+            <label for="name">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="_model.Name" />
+            <ValidationMessage For="() => _model.Name" />
+        </div>
+        <div class="form-group row">
+            <label for="startDateTime">Start date/time</label>
+            <InputDate id="startDateTime" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartDateTime" />
+            <ValidationMessage For="() => _model.StartDateTime" />
+        </div>
+        <div class="form-group row">
+            <label for="endDateTime">End date/time</label>
+            <InputDate id="endDate" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.EndDateTime" />
+            <ValidationMessage For="() => _model.EndDateTime" />
+        </div>
+        @if (_model.IsUpdatable)
+        {
+            <input type="submit" class="btn btn-primary" value="Save"/>
+        }
+    </EditForm>
+}

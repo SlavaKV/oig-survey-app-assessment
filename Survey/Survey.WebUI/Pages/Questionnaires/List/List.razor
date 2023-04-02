@@ -1,0 +1,54 @@
+﻿@page "/questionnaires"
+
+<h3>Questionnaires</h3>
+
+<div>
+    <label for="nameFilter">Filter by name</label>
+    <InputText id="nameFilter" class="form-control" @bind-Value="_search" />
+</div>
+
+<div>
+    <label for="startOrder">Order by</label>
+    <InputSelect id="startOrder" @bind-Value="_sortIndex">
+        @foreach (var item in _model.OrderItems)
+        {
+            <option value="@item.Id">@item.Title</option>
+        }
+    </InputSelect>
+</div>
+
+<div>
+    <button class="btn btn-primary" @onclick="Search">
+        Search
+    </button>
+    <a class="btn btn-secondary" href="/questionnaire">Create questionnaire</a>
+</div>
+
+@if (_listItems == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Start date/time</th>
+                <th>End date/time</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var item in _listItems)
+        {
+            <tr>
+                <td><a href="questionnaire/@item.Id">@item.Name</a></td>
+                <td>@item.StartDateTime.ToShortDateString() @item.StartDateTime.ToShortTimeString()</td>
+                <td>@item.EndDateTime.ToShortDateString() @item.EndDateTime.ToShortTimeString()</td>
+                <td>@item.StatusName</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
