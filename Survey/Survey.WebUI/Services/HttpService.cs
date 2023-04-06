@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Text.Json;
 using System.Text;
-using Microsoft.AspNetCore.Components;
 
 namespace Survey.WebUI.Services
 {
@@ -70,7 +69,8 @@ namespace Survey.WebUI.Services
         {
             if (!response.IsSuccessStatusCode)
             {
-                throw new ApplicationException(await response.Content.ReadAsStringAsync());
+                // TODO: trow exceptions based on http codes
+                throw new Exception(await response.Content.ReadAsStringAsync());
             }
         }
     }

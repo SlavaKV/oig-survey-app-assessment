@@ -2,6 +2,6 @@
 {
     public interface ICurrentUserService
     {
-        public int UserId { get; set; }
+        public CurrentUser User { get; set; }
     }
 }

@@ -7,14 +7,14 @@
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
         public string StatusName { get; set; }
-        public string NextStatusName { get; set; }
+        public bool IsClosable { get; set; }
+        public bool IsScheduled { get; set; }
         public bool IsUpdatable { get; set; }
 
         public void Mapping(Profile profile)
         {
             profile.CreateMap<Questionnaire, QuestionnaireDto>()
-                .ForMember(d => d.NextStatusName, opt => opt.MapFrom(s => s.NextStatusName))
-                .ForMember(d => d.StatusName, opt => opt.MapFrom(s => s.Status.Name));
+                .ForMember(d => d.StatusName, opt => opt.MapFrom(s => s.Status.ToString()));
         }
     }
 }

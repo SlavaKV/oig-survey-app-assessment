@@ -24,31 +24,54 @@ else
             <div>
                 <label>Status is <b>@_model.StatusName</b></label>
             </div>
-            @if(_model.IsUpdatable){
-                if (!string.IsNullOrEmpty(_model.NextStatusName)) // TODO: Change into bool variable
-                {
-                    <button class="btn btn-secondary" @onclick="ChangeStatus">Change Status on @_model.NextStatusName</button>
-                }
+            @if(_model.IsScheduled)
+            {
+                <button class="btn btn-secondary" @onclick="Schedule">Schedule</button>
+            }
+            @if (_model.IsClosable)
+            {
+                <button class="btn btn-secondary" @onclick="Close">Close</button>
             }
         }
     </div>
     <EditForm Model="@_model" OnValidSubmit="Submit">
-        <DataAnnotationsValidator/>
+        <Blazored.FluentValidation.FluentValidationValidator/>
         <ValidationSummary/>
         <div class="form-group row">
             <label for="name">Name</label>
-            <InputText id="name" class="form-control" @bind-Value="_model.Name" />
-            <ValidationMessage For="() => _model.Name" />
+            @if(_model.IsUpdatable)
+            {
+                <InputText id="name" class="form-control" @bind-Value="_model.Name" />
+                <ValidationMessage For="() => _model.Name" />
+            }
+            else
+            {
+                <div><b>@_model.Name</b></div>
+            }
         </div>
         <div class="form-group row">
             <label for="startDateTime">Start date/time</label>
-            <InputDate id="startDateTime" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartDateTime" />
-            <ValidationMessage For="() => _model.StartDateTime" />
+            @if (_model.IsUpdatable)
+            {
+                <InputDate id="startDateTime" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.StartDateTime" />
+                <ValidationMessage For="() => _model.StartDateTime" />
+            }
+            else
+            {
+                <div><b>@_model.StartDateTime.ToShortDateString() @_model.StartDateTime.ToShortTimeString()</b></div>
+            }
         </div>
         <div class="form-group row">
             <label for="endDateTime">End date/time</label>
-            <InputDate id="endDate" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.EndDateTime" />
-            <ValidationMessage For="() => _model.EndDateTime" />
+            @if (_model.IsUpdatable)
+            {
+                <InputDate id="endDate" class="form-control" Type="InputDateType.DateTimeLocal" @bind-Value="_model.EndDateTime" />
+                <ValidationMessage For="() => _model.EndDateTime" />
+            }
+            else
+            {
+                <div><b>@_model.EndDateTime.ToShortDateString() @_model.EndDateTime.ToShortTimeString()</b></div>
+            }
         </div>
         @if (_model.IsUpdatable)
         {

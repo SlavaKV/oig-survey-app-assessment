@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace Survey.Application.Questionnaires.Queries.GetQuestionnaires
+﻿namespace Survey.Application.Questionnaires.Queries.GetQuestionnaires
 {
     public class GetQuestionnairesQuery : IRequest<QuestionnaireListDto>
     {
@@ -12,11 +10,16 @@ namespace Survey.Application.Questionnaires.Queries.GetQuestionnaires
     {
         private readonly IApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetQuestionnairesQueryHandler(IApplicationDbContext context, IMapper mapper)
+        public GetQuestionnairesQueryHandler(
+            IApplicationDbContext context,
+            IMapper mapper,
+            ICurrentUserService currentUserService)
         {
             _context = context;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<QuestionnaireListDto> Handle(GetQuestionnairesQuery request, CancellationToken cancellationToken)
@@ -29,7 +32,7 @@ namespace Survey.Application.Questionnaires.Queries.GetQuestionnaires
             result.OrderItems.Add(new ListOrderItem { Id = (int)QuestionnaireListOrder.EndAsc, Title = "End" });
             result.OrderItems.Add(new ListOrderItem { Id = (int)QuestionnaireListOrder.EndDesc, Title = "End DESC" });
 
-            IQueryable<Questionnaire> query = _context.Questionnaires.Include(q => q.Status);
+            IQueryable<Questionnaire> query = _context.Questionnaires;
 
             if (!string.IsNullOrEmpty(request.Search))
             {
@@ -44,9 +47,18 @@ namespace Survey.Application.Questionnaires.Queries.GetQuestionnaires
                 case QuestionnaireListOrder.EndDesc: query = query.OrderByDescending(q => q.EndDateTime); break;
             }
 
-            result.Questionnaires = await query
-                .ProjectTo<QuestionnaireDto>(_mapper.ConfigurationProvider)
-                .ToListAsync();
+            Func<Questionnaire, QuestionnaireDto> selectExp = q =>
+            {
+                var questionnaireDto = _mapper.Map<QuestionnaireDto>(q);
+
+                questionnaireDto.IsClosable = q.IsClosable(_currentUserService.User);
+                questionnaireDto.IsScheduled = q.IsScheduled(_currentUserService.User);
+                questionnaireDto.IsUpdatable = q.IsUpdatable(_currentUserService.User);
+
+                return questionnaireDto;
+            };
+
+            result.Questionnaires = query.Select(selectExp).ToList();
 
             return result;
         }

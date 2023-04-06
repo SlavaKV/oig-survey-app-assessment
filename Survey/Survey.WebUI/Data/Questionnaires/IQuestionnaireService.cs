@@ -3,10 +3,11 @@
     public interface IQuestionnaireService
     {
         Task<QuestionnaireListVM> GetQuestionnairesAsync(string search, int? orderIndex = null);
-        Task<QuestionnaireVM> GetQuestionnaireByIdAsync(int id);
+        Task<QuestionnaireViewModel> GetQuestionnaireByIdAsync(int id);
 
-        Task<int> Create(QuestionnaireVM questionnaire);
-        Task Update(QuestionnaireVM questionnaire);
-        Task ChangeStatus(QuestionnaireVM questionnaire);
+        Task<int> Create(QuestionnaireViewModel questionnaire);
+        Task Update(QuestionnaireViewModel questionnaire);
+        Task Close(int id);
+        Task Schedule(int id);
     }
 }

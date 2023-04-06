@@ -1,54 +1,96 @@
-﻿namespace Survey.Domain.Entities
+﻿using Survey.Domain.Enums;
+
+namespace Survey.Domain.Entities
 {
     public class Questionnaire
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public DateTime StartDateTime { get; set; }
-        public DateTime EndDateTime { get; set; }
-        public int StatusId { get; private set; } // TODO: Exclude
-        public QuestionnaireStatus Status { get; private set; }
+        public DateTime StartDateTime { get; private set; }
+        public DateTime EndDateTime { get; private set; }
+        public QuestionnaireStatus Status { get; private set; } = QuestionnaireStatus.Concept;
+
         public int UserId { get; set; } // TODO: change this the easiest way
 
-        private Questionnaire()
+        public void SetDates(DateTime startDateTime, DateTime endDateTime)
         {
+            if(startDateTime.AddHours(1) > endDateTime)
+            {
+                throw new Exception("The end date and time are at least one hour after the beginning date and time");
+            }
+
+            StartDateTime= startDateTime;
+            EndDateTime= endDateTime;
         }
 
-        public static Questionnaire Create()
+        public bool IsClosable(CurrentUser currentUser)
         {
-            return new Questionnaire
-            {
-                StatusId = QuestionnaireStatus.Concept.Id
-            };
+            return UserId == currentUser.Id && Status == QuestionnaireStatus.Active;
         }
 
-        public void ChangeStatus()
+        public void Close(CurrentUser currentUser)
         {
-            var newStatus = Status.GetNext();
-            if (newStatus is not null)
+            if (IsClosable(currentUser))
             {
-                StatusId = newStatus.Id;
+                ChangeStatus(QuestionnaireStatus.Completed);
             }
         }
 
-        public QuestionnaireStatus NextStatus => Status.GetNext();
-        public string NextStatusName
+        public bool IsScheduled(CurrentUser currentUser)
         {
-            get
+            if (StartDateTime > DateTime.Now && Status == QuestionnaireStatus.Concept)
             {
-                var status = Status.GetNext();
-                if (status is not null)
+                if (currentUser.IsSystem)
                 {
-                    return status.Name;
+                    return true;
                 }
-                return string.Empty;
+                else
+                {
+                    return UserId == currentUser.Id;
+                }
+            }
+            else
+            {
+                return false;
             }
         }
 
-        // TODO: Change into User instead UserId
-        public bool IsUpdatable(int userId)
+        public void Schedule(CurrentUser currentUser)
         {
-            return UserId == userId;
+            if (IsScheduled(currentUser))
+            {
+                ChangeStatus(QuestionnaireStatus.Scheduled);
+            }
+        }
+
+        public bool IsUpdatable(CurrentUser currentUser)
+        {
+            return UserId == currentUser.Id &&
+                (Status == QuestionnaireStatus.Concept || Status == QuestionnaireStatus.Scheduled);
+        }
+
+        private void ChangeStatus(QuestionnaireStatus newStatus)
+        {
+            if (
+                (Status == QuestionnaireStatus.Concept && newStatus == QuestionnaireStatus.Scheduled) ||
+                (Status == QuestionnaireStatus.Scheduled && newStatus == QuestionnaireStatus.Active) ||
+                (Status == QuestionnaireStatus.Active && newStatus == QuestionnaireStatus.Completed) 
+                )
+            {
+                Status = newStatus;
+            }
+            else
+            {
+                throw new Exception($"Cannot set Status {newStatus.ToString()} the previously one is {Status.ToString()}");
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------------
+
+        // Use this method only for DB seed. Shouldn't be calld according to business rules
+        public void SetStatus(QuestionnaireStatus newStatus)
+        {
+            Status = newStatus;
         }
     }
 }

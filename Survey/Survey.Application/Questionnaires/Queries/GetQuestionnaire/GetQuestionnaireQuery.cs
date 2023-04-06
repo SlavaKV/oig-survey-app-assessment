@@ -26,18 +26,21 @@ namespace Survey.Application.Questionnaires.Queries.GetQuestionnaire
 
         public async Task<QuestionnaireDto> Handle(GetQuestionnaireQuery request, CancellationToken cancellationToken)
         {
-            var entity = await _context.Questionnaires.Include(q => q.Status).FirstOrDefaultAsync(q => q.Id == request.Id);
+            var entity = await _context.Questionnaires.FirstOrDefaultAsync(q => q.Id == request.Id);
 
             if (entity is null)
             {
                 // TODO: create Not Found Exception instead
-                throw new Exception(nameof(Questionnaire));
+                throw new Exception($"Cannot find entity {nameof(Questionnaire)} with Id={request.Id}");
             }
 
-            var questionnaire = _mapper.Map<QuestionnaireDto>(entity);
-            questionnaire.IsUpdatable = entity.IsUpdatable(_currentUserService.UserId);
+            var questionnaireDto = _mapper.Map<QuestionnaireDto>(entity);
 
-            return questionnaire;
+            questionnaireDto.IsClosable = entity.IsClosable(_currentUserService.User);
+            questionnaireDto.IsScheduled = entity.IsScheduled(_currentUserService.User);
+            questionnaireDto.IsUpdatable = entity.IsUpdatable(_currentUserService.User);
+
+            return questionnaireDto;
         }
     }
 }

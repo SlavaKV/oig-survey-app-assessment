@@ -14,7 +14,6 @@ namespace Survey.Infrastructure.Persistence
         }
 
         public DbSet<Questionnaire> Questionnaires { get; set; }
-        public DbSet<QuestionnaireStatus> QuestionnaireStatuses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

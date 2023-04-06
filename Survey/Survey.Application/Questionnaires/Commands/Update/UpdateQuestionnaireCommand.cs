@@ -1,6 +1,4 @@
-﻿using Survey.Application.Common.Interfaces;
-
-namespace Survey.Application.Questionnaires.Commands.Create
+﻿namespace Survey.Application.Questionnaires.Commands.Update
 {
     public class UpdateQuestionnaireCommand : IRequest
     {
@@ -28,15 +26,14 @@ namespace Survey.Application.Questionnaires.Commands.Create
             if (entity == null)
             {
                 // TODO: NotFoundException
-                throw new Exception(nameof(Questionnaire));
+                throw new Exception($"Cannot find entity {nameof(Questionnaire)} with Id={request.Id}");
             }
 
             // Only Owner can update
-            if (entity.UserId == _currentUserService.UserId)
+            if (entity.IsUpdatable(_currentUserService.User))
             {
                 entity.Name = request.Name;
-                entity.StartDateTime = request.StartDateTime;
-                entity.EndDateTime = request.EndDateTime;
+                entity.SetDates(request.StartDateTime, request.EndDateTime);
 
                 await _context.SaveChangesAsync(cancellationToken);
             }

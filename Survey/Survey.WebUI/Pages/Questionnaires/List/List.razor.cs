@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Survey.WebUI.Data.Questionnaires;
+using System.IO.Pipelines;
 
 namespace Survey.WebUI.Pages.Questionnaires.List
 {
@@ -27,6 +28,18 @@ namespace Survey.WebUI.Pages.Questionnaires.List
         {
             _model = await QuestionnaireService.GetQuestionnairesAsync(_search, _sortIndex);
             _listItems = _model.Questionnaires;
+        }
+
+        private async Task Schedule(int id)
+        {
+            await QuestionnaireService.Schedule(id);
+            await Refresh();
+        }
+
+        private async Task Close(int id)
+        {
+            await QuestionnaireService.Close(id);
+            await Refresh();
         }
     }
 }

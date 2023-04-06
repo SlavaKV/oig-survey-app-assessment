@@ -38,12 +38,12 @@ namespace Survey.WebUI.Data.Questionnaires
             return await _httpService.Get<QuestionnaireListVM>($"/api/questionnaires{queryParam}");
         }
 
-        public async Task<QuestionnaireVM> GetQuestionnaireByIdAsync(int id)
+        public async Task<QuestionnaireViewModel> GetQuestionnaireByIdAsync(int id)
         {
-            return await _httpService.Get<QuestionnaireVM>($"/api/questionnaires/{id}");
+            return await _httpService.Get<QuestionnaireViewModel>($"/api/questionnaires/{id}");
         }
 
-        public async Task<int> Create(QuestionnaireVM questionnaire)
+        public async Task<int> Create(QuestionnaireViewModel questionnaire)
         {
             var command = new
             {
@@ -55,7 +55,7 @@ namespace Survey.WebUI.Data.Questionnaires
             return await _httpService.Post<int>($"/api/questionnaires", command);
         }
 
-        public async Task Update(QuestionnaireVM questionnaire)
+        public async Task Update(QuestionnaireViewModel questionnaire)
         {
             var command = new
             {
@@ -68,14 +68,24 @@ namespace Survey.WebUI.Data.Questionnaires
             await _httpService.Put($"/api/questionnaires/{questionnaire.Id}", command);
         }
 
-        public async Task ChangeStatus(QuestionnaireVM questionnaire)
+        public async Task Close(int id)
         {
             var command = new
             {
-                Id = questionnaire.Id
+                Id = id
             };
 
-            await _httpService.Put($"/api/questionnaires/{questionnaire.Id}/changestatus", command);
+            await _httpService.Put($"/api/questionnaires/{id}/close", command);
+        }
+
+        public async Task Schedule(int id)
+        {
+            var command = new
+            {
+                Id = id
+            };
+
+            await _httpService.Put($"/api/questionnaires/{id}/schedule", command);
         }
     }
 }

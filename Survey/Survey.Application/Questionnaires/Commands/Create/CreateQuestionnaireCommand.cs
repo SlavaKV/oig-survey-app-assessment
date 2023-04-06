@@ -20,12 +20,12 @@
 
         public async Task<int> Handle(CreateQuestionnaireCommand request, CancellationToken cancellationToken)
         {
-            var entity = Questionnaire.Create();
+            var entity = new Questionnaire();
 
             entity.Name = request.Name;
-            entity.StartDateTime = request.StartDateTime;
-            entity.EndDateTime = request.EndDateTime;
-            entity.UserId = _currentUserService.UserId;
+            entity.UserId = _currentUserService.User.Id;
+
+            entity.SetDates(request.StartDateTime, request.EndDateTime);
 
             await _context.Questionnaires.AddAsync(entity);
             await _context.SaveChangesAsync();

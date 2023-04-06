@@ -37,6 +37,9 @@ else
                 <th>Start date/time</th>
                 <th>End date/time</th>
                 <th>Status</th>
+                <th>Is scheduled</th>
+                <th>Is updatable</th>
+                <th>Is closable</th>
             </tr>
         </thead>
         <tbody>
@@ -47,6 +50,24 @@ else
                 <td>@item.StartDateTime.ToShortDateString() @item.StartDateTime.ToShortTimeString()</td>
                 <td>@item.EndDateTime.ToShortDateString() @item.EndDateTime.ToShortTimeString()</td>
                 <td>@item.StatusName</td>
+                <td>
+                    @if (item.IsScheduled)
+                    {
+                        <button class="btn btn-info" @onclick="() => Schedule(item.Id)">Schedule</button>
+                    }
+                </td>
+                <td>
+                    @if (item.IsUpdatable)
+                    {
+                        <a class="btn btn-outline-info" href="questionnaire/@item.Id">Update</a>
+                    }
+                </td>
+                <td>
+                    @if (item.IsClosable)
+                    {
+                        <button class="btn btn-danger" @onclick="() => Close(item.Id)">Close</button>
+                    }
+                </td>
             </tr>
         }
         </tbody>

@@ -7,7 +7,7 @@ namespace Survey.WebUI.Pages.Questionnaires.Detail
     {
         [Parameter] public int? Id { get; set; }
 
-        private QuestionnaireVM _model = new();
+        private QuestionnaireViewModel _model = new();
 
         private bool _isAddMode => Id is null;
         private bool _isEditMode => Id is not null;
@@ -46,11 +46,20 @@ namespace Survey.WebUI.Pages.Questionnaires.Detail
             Navigation.NavigateTo($"/questionnaires");
         }
 
-        private async Task ChangeStatus()
+        private async Task Close()
         {
-            if (_isEditMode)
+            if (_model.IsClosable)
             {
-                await QuestionnaireService.ChangeStatus(_model);
+                await QuestionnaireService.Close(_model.Id);
+            }
+            await Refresh();
+        }
+
+        private async Task Schedule()
+        {
+            if (_model.IsScheduled)
+            {
+                await QuestionnaireService.Schedule(_model.Id);
             }
             await Refresh();
         }
